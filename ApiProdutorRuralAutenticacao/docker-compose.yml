@@ -1,9 +1,10 @@
 version: '3.4'
-name: ApiProdutorRuralAutenticacao
+name: apiprodutorruralautenticacao
+
 services:
-  ProdutorRuralAutenticacao.api:
-    image: ${DOCKER_REGISTRY-}ProdutorRuralAutenticacaoapi
-    container_name: ApiProdutorRuralAutenticacao
+  produtorruralautenticacao.api:
+    image: ${DOCKER_REGISTRY-}produtorruralautenticacaoapi
+    container_name: apiprodutorruralautenticacao
     build:
       context: .
       dockerfile: src/ProdutorRuralAutenticacao.Api/Dockerfile

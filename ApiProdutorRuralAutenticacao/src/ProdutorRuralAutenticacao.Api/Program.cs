@@ -1,4 +1,4 @@
-using Asp.Versioning.ApiExplorer;
+﻿using Asp.Versioning.ApiExplorer;
 using Microsoft.EntityFrameworkCore;
 using ProdutorRuralAutenticacao.Api.Extensions.Auth;
 using ProdutorRuralAutenticacao.Api.Extensions.Auth.Middleware;
@@ -14,7 +14,9 @@ using ProdutorRuralAutenticacao.Api.Extensions.Versioning;
 using ProdutorRuralAutenticacao.Application;
 using ProdutorRuralAutenticacao.Infrastructure;
 using ProdutorRuralAutenticacao.Infrastructure.DataBase.EntityFramework.Context;
+using ProdutorRuralAutenticacao.Infrastructure.DataBase.EntityFramework.Identity.Extension;
 using ProdutorRuralAutenticacao.Infrastructure.Monitoring;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,8 +29,13 @@ builder.Services.AddSwaggerDocumentation();
 builder.Services.AddAutoMapper(typeof(MapperProfile));
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddIdentityExtension();
 builder.Services.AddAuthorizationExtension(builder.Configuration);
+builder.Configuration
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddEnvironmentVariables();
 
+// Adiciona configuração CORS para permitir solicitações do Prometheus
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", builder =>
@@ -39,58 +46,48 @@ builder.Services.AddCors(options =>
     });
 });
 
-
-#region [DI]
-
-ApplicationBootstrapper.Register(builder.Services);
-InfraBootstrapper.Register(builder.Services, builder.Configuration);
-
-// Prometheus monitoring
+// Adiciona monitoramento com Prometheus
 builder.Services.AddPrometheusMonitoring();
+builder.Services.AddSingleton<MetricsCollector>();
 
-// ELK Stack integration  
+// ELK Stack integration
 builder.Services.AddELKIntegration(builder.Configuration);
 
 // Distributed Tracing with OpenTelemetry + Jaeger
 builder.Services.AddDistributedTracing(builder.Configuration);
 
+#region [DI]
+
+ApplicationBootstrapper.Register(builder.Services);
+InfraBootstrapper.Register(builder.Services);
+
 #endregion
 
-#region [Consumers]
-//builder.Services.AddSingleton<RabbitMqSetup>();
-//builder.Services.AddHostedService<UserCreatedConsumer>();
-
-#endregion
 
 var app = builder.Build();
+
+// Log manual para teste
+var logger = app.Services.GetRequiredService<ILogger<Program>>();
+logger.LogInformation("🚀 Users API iniciada - Teste de log manual com metadados");
 
 app.ExecuteMigrations();
 var apiVersionDescriptionProvider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
 
-app.UseAuthentication();                        // 1�: popula HttpContext.User
-app.UseMiddleware<RoleAuthorizationMiddleware>();
+app.UseAuthentication();                        // 1°: popula HttpContext.User
+app.UseMiddleware<RoleAuthorizationMiddleware>(); // 2°: seu middleware
 app.UseCorrelationId();
 app.UseELKIntegration();
 
+// Adiciona CORS antes de outros middlewares
 app.UseCors("AllowAll");
 
-// Prometheus middleware
+// Adiciona middleware de monitoramento
 app.UsePrometheusMonitoring();
 
+// Adiciona request logging com Serilog
+app.UseSerilogRequestLogging();
+
 app.UseVersionedSwagger(apiVersionDescriptionProvider);
-app.UseAuthorization();                         // 3�: aplica [Authorize]
-//app.UseHttpsRedirection();
+app.UseAuthorization();                         // 3°: aplica [Authorize]
 app.MapControllers();
-
-// Health Check endpoints
-app.MapHealthChecks("/health");
-app.MapHealthChecks("/health/ready", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
-{
-    Predicate = check => check.Tags.Contains("ready")
-});
-app.MapHealthChecks("/health/live", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
-{
-    Predicate = check => check.Tags.Contains("live")
-});
-
 app.Run();

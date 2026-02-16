@@ -1,0 +1,24 @@
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using ProdutorRuralAutenticacao.Domain.Entities.Identity;
+
+namespace ProdutorRuralAutenticacao.Infrastructure.DataBase.EntityFramework.EntityConfig
+{
+    public class IdentityUserRoleConfiguration : IEntityTypeConfiguration<UserRoles>
+    {
+        public void Configure(EntityTypeBuilder<UserRoles> builder)
+        {
+            builder.HasKey(u => new { u.UserId, u.RoleId });
+
+            builder.HasOne(ur => ur.User)
+                    .WithMany(u => u.UserRoles)
+                    .HasForeignKey(ur => ur.UserId);
+
+            builder.HasOne(ur => ur.Role)
+                    .WithMany(r => r.UserRoles)
+                    .HasForeignKey(ur => ur.RoleId);
+
+            builder.ToTable("UAC_UserRoles");
+        }
+    }
+}

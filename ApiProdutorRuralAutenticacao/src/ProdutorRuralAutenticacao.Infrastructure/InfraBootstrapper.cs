@@ -7,9 +7,9 @@ namespace ProdutorRuralAutenticacao.Infrastructure
 {
     public static class InfraBootstrapper
     {
-        public static void Register(IServiceCollection services, IConfiguration configuration)
+        public static void Register(IServiceCollection services)
         {
-            services.AddScoped<IProdutorRuralAutenticacaoRepository, ProdutorRuralAutenticacaoRepository>();         
+            services.AddScoped<IUserRepository, UserRepository>();         
         }
     }
 }
