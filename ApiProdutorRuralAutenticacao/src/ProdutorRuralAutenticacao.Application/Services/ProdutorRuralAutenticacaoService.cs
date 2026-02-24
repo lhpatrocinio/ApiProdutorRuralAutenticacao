@@ -12,7 +12,7 @@ using System.Text;
 
 namespace ProdutorRuralAutenticacao.Application.Services
 {
-    public class ProdutorRuralAutenticacaoService: IProdutorRuralAutenticacaoService
+    public class ProdutorRuralAutenticacaoService : IProdutorRuralAutenticacaoService
     {
         private readonly IConfiguration _configuration;
         private readonly IUserRepository _userRepository;

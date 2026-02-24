@@ -9,7 +9,7 @@ namespace ProdutorRuralAutenticacao.Application
         public static void Register(IServiceCollection services)
         {
             services.AddTransient<IProdutorRuralAutenticacaoService, ProdutorRuralAutenticacaoService>();
-            services.AddTransient<IUserServices,UserServices>();
+            services.AddTransient<IUserServices, UserServices>();
         }
     }
 }

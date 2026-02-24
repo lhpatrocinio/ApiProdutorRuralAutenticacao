@@ -13,10 +13,10 @@ namespace ProdutorRuralAutenticacao.Application.Services
     {
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
-        public UserServices(IUserRepository userRepository, IMapper mapper )
+        public UserServices(IUserRepository userRepository, IMapper mapper)
         {
             _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));          
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
         public async Task BlockUserAsync(BlockUserRequest request)

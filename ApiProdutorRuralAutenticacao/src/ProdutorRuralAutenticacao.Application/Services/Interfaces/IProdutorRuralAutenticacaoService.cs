@@ -13,6 +13,6 @@ namespace ProdutorRuralAutenticacao.Application.Services.Interfaces
     {
         Task<string> LoginAsync(LoginRequest request);
 
-        
+
     }
 }

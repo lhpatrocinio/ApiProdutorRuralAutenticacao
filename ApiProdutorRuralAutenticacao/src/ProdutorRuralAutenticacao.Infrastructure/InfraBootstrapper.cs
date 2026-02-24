@@ -9,7 +9,7 @@ namespace ProdutorRuralAutenticacao.Infrastructure
     {
         public static void Register(IServiceCollection services)
         {
-            services.AddScoped<IUserRepository, UserRepository>();         
+            services.AddScoped<IUserRepository, UserRepository>();
         }
     }
 }
