@@ -13,9 +13,9 @@ services:
       - ASPNETCORE_URLS=http://+:80
       - ASPNETCORE_HTTP_PORTS=80
     ports:
-      - "7000:80"
+      - "5000:80"
     networks:
-      - postech-network
+      - agro-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:80/metrics"]
       interval: 30s
@@ -24,5 +24,5 @@ services:
       start_period: 40s
 
 networks:
-  postech-network:
+  agro-network:
     external: true

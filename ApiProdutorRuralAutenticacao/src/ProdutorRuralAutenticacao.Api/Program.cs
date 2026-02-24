@@ -21,7 +21,7 @@ using Serilog;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddSerilogConfiguration();
-builder.WebHost.UseUrls("http://*:80");
+builder.WebHost.UseUrls("http://*:5000");
 
 builder.Services.AddMvcCore(options => options.AddLogRequestFilter());
 builder.Services.AddVersioning();
